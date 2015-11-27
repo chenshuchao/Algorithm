@@ -1,6 +1,8 @@
 #include <iostream>
 #include <queue>
 #include <stack>
+#include <vector>
+
 using namespace std;
 
 const int NULL_NODE = -100;
@@ -13,29 +15,20 @@ struct TreeNode {
 
 class Solution {
 public:
-    vector<TreeNode*> generateTrees(int n) {
-        return generateTrees(1, n);
-    }
-private:
-    vector<TreeNode*> generateTrees(int from, int to) {
-        vector<TreeNode*> res;
-        if(from - to > 0) res.push_back(NULL);
-        else if(from - to == 0) res.push_back(new TreeNode(from));
-        else {
-            for(int i = from; i <= to; i ++) {
-                vector<TreeNode*> left = generateTrees(from, i-1);
-                vector<TreeNode*> right = generateTrees(i+1, to);
-                for(int j = 0; j < left.size(); j ++) {
-                    for(int k = 0; k < right.size(); k ++) {
-                        TreeNode *node = new TreeNode(i);
-                        node->left = left[j];
-                        node->right = right[k];
-                        res.push_back(node);
-                    }
+    void flatten(TreeNode* root) {
+        TreeNode *now = root;
+        while(now) {
+            TreeNode *pre = now->left;
+            if(pre) {
+                while(pre->right) {
+                    pre = pre->right;
                 }
+                pre->right = now->right;
+                now->right = now->left;
+                now->left = NULL;
             }
+            now = now->right; 
         }
-        return res;
     }
 };
 
@@ -64,7 +57,7 @@ TreeNode* buildTree(vector<int>& v) {
     }
     return root;
 }
-vector<int> treeToVector(TreeNode *root) {
+vector<int> printTree(TreeNode *root) {
     vector<int> v;
     if(!root) return v;
     queue<TreeNode*> q;
@@ -93,14 +86,25 @@ void printVector(vector<int> v) {
         cout << v[i] << " ";
     cout << endl;
 }
+void printVV(vector<vector<int> > &vv) {
+    for(int i = 0; i < vv.size(); i ++) {
+        printVector(vv[i]);
+    }
+}
 int main() {
 
+    int arr1[] = {5, 4, 8, 11, -100, 13, 4, 7, 2, -100, -100, 5, 1};
+    //int arr1[] = {5, 4, 8, 11, -100, 13, 4, 7, 2, -100, -100, -100, 1};
+    //int arr1[] = {1,-2,-3,1,3,-2,-100,-1};
+    vector<int> v(arr1, arr1 + sizeof(arr1)/sizeof(int));
+    TreeNode *root = buildTree(v);
+    vector<int> tree = printTree(root);
+    printVector(tree);
+
     Solution s;
-    vector<TreeNode*> res = s.generateTrees(3);
+    s.flatten(root);
+    printVector(printTree(root));
     
-    for(int i = 0; i < res.size(); i ++) {
-        printVector(treeToVector(res[i]));
-    }
     return 0;
 }
 
