@@ -11,30 +11,31 @@ struct TreeNode {
     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
 };
 
+struct Result {
+    int maxLeafPathSum;
+    int maxPathSum;
+    Result() : maxLeafPathSum(0), maxPathSum(0) {}
+    Result(int x, int y) : maxLeafPathSum(x), maxPathSum(y) {}
+};
 class Solution {
 public:
-    vector<TreeNode*> generateTrees(int n) {
-        return generateTrees(1, n);
+    int maxPathSum(TreeNode* root) {
+       Result res = maxPath(root); 
+       return res.maxPathSum;
     }
-private:
-    vector<TreeNode*> generateTrees(int from, int to) {
-        vector<TreeNode*> res;
-        if(from - to > 0) res.push_back(NULL);
-        else if(from - to == 0) res.push_back(new TreeNode(from));
-        else {
-            for(int i = from; i <= to; i ++) {
-                vector<TreeNode*> left = generateTrees(from, i-1);
-                vector<TreeNode*> right = generateTrees(i+1, to);
-                for(int j = 0; j < left.size(); j ++) {
-                    for(int k = 0; k < right.size(); k ++) {
-                        TreeNode *node = new TreeNode(i);
-                        node->left = left[j];
-                        node->right = right[k];
-                        res.push_back(node);
-                    }
-                }
-            }
+    Result maxPath(TreeNode* root) {
+        if(root == NULL) {
+            Result res(0, INT_MIN);
+            return res;
         }
+        Result left = maxPath(root->left);
+        Result right = maxPath(root->right);
+        Result res;
+        int maxSinglePath = max(left.maxLeafPathSum, right.maxLeafPathSum); 
+        res.maxLeafPathSum = root->val + (maxSinglePath > 0 ? maxSinglePath : 0);
+
+        int temp = root->val + (left.maxLeafPathSum > 0 ? left.maxLeafPathSum : 0) + (right.maxLeafPathSum > 0 ? right.maxLeafPathSum : 0);
+        res.maxPathSum = max(max(left.maxPathSum, right.maxPathSum), temp);
         return res;
     }
 };
@@ -64,7 +65,7 @@ TreeNode* buildTree(vector<int>& v) {
     }
     return root;
 }
-vector<int> treeToVector(TreeNode *root) {
+vector<int> printTree(TreeNode *root) {
     vector<int> v;
     if(!root) return v;
     queue<TreeNode*> q;
@@ -88,19 +89,34 @@ vector<int> treeToVector(TreeNode *root) {
     }
     return v;
 }
-void printVector(vector<int> v) {
+template <typename T>
+void printV(const vector<T>& v) {
     for(int i = 0; i < v.size(); i++)
         cout << v[i] << " ";
     cout << endl;
 }
+template <typename T>
+void printVV(const vector<vector<T> >& vv) {
+    for(int i = 0; i < vv.size(); i++) {
+        printV(vv[i]);
+    }
+}
+
 int main() {
 
+    //int arr1[] = {1, 2, 3, 4, 5, -100, -100, -100, 6};
+    //int arr1[] = {1, 2, 3};
+    //int arr1[] = {1, 2, 3, 4, 5, -100, -100, 6, -100, 7};
+    //int arr1[] = {1, -1, -2};
+    int arr1[] = {1, -1, 2};
+    vector<int> v(arr1, arr1 + sizeof(arr1)/sizeof(int));
+    TreeNode *root = buildTree(v);
+    vector<int> tree = printTree(root);
+    printV(tree);
+
     Solution s;
-    vector<TreeNode*> res = s.generateTrees(3);
+    cout << s.maxPathSum(root) << endl;
     
-    for(int i = 0; i < res.size(); i ++) {
-        printVector(treeToVector(res[i]));
-    }
     return 0;
 }
 

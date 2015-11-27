@@ -1,6 +1,8 @@
 #include <iostream>
+#include <vector>
 #include <queue>
 #include <stack>
+#include <climits>
 using namespace std;
 
 const int NULL_NODE = -100;
@@ -13,29 +15,22 @@ struct TreeNode {
 
 class Solution {
 public:
-    vector<TreeNode*> generateTrees(int n) {
-        return generateTrees(1, n);
+    int sumNumbers(TreeNode* root) {
+        int sum = 0;
+        dfs(root, 0, sum);
+        return sum;
     }
-private:
-    vector<TreeNode*> generateTrees(int from, int to) {
-        vector<TreeNode*> res;
-        if(from - to > 0) res.push_back(NULL);
-        else if(from - to == 0) res.push_back(new TreeNode(from));
-        else {
-            for(int i = from; i <= to; i ++) {
-                vector<TreeNode*> left = generateTrees(from, i-1);
-                vector<TreeNode*> right = generateTrees(i+1, to);
-                for(int j = 0; j < left.size(); j ++) {
-                    for(int k = 0; k < right.size(); k ++) {
-                        TreeNode *node = new TreeNode(i);
-                        node->left = left[j];
-                        node->right = right[k];
-                        res.push_back(node);
-                    }
-                }
-            }
+    void dfs(TreeNode* root, int temp, int &sum) {
+        if(!root) {
+            return;
         }
-        return res;
+        temp = temp * 10 + root->val;
+        if(root->left == NULL && root->right == NULL) {
+            sum += temp; 
+            return;
+        }
+        dfs(root->left, temp, sum);
+        dfs(root->right, temp, sum);
     }
 };
 
@@ -64,7 +59,7 @@ TreeNode* buildTree(vector<int>& v) {
     }
     return root;
 }
-vector<int> treeToVector(TreeNode *root) {
+vector<int> printTree(TreeNode *root) {
     vector<int> v;
     if(!root) return v;
     queue<TreeNode*> q;
@@ -95,12 +90,15 @@ void printVector(vector<int> v) {
 }
 int main() {
 
+    int arr1[] = {1, 2, 3};
+    vector<int> v(arr1, arr1 + sizeof(arr1)/sizeof(int));
+    TreeNode *root = buildTree(v);
+    vector<int> tree = printTree(root);
+    printVector(tree);
+
     Solution s;
-    vector<TreeNode*> res = s.generateTrees(3);
+    cout << s.sumNumbers(root) << endl;
     
-    for(int i = 0; i < res.size(); i ++) {
-        printVector(treeToVector(res[i]));
-    }
     return 0;
 }
 

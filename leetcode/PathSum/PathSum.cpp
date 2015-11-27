@@ -13,29 +13,15 @@ struct TreeNode {
 
 class Solution {
 public:
-    vector<TreeNode*> generateTrees(int n) {
-        return generateTrees(1, n);
+    bool hasPathSum(TreeNode* root, int sum) {
+        if(!root) return false;
+        return dfs(root, sum);
     }
-private:
-    vector<TreeNode*> generateTrees(int from, int to) {
-        vector<TreeNode*> res;
-        if(from - to > 0) res.push_back(NULL);
-        else if(from - to == 0) res.push_back(new TreeNode(from));
-        else {
-            for(int i = from; i <= to; i ++) {
-                vector<TreeNode*> left = generateTrees(from, i-1);
-                vector<TreeNode*> right = generateTrees(i+1, to);
-                for(int j = 0; j < left.size(); j ++) {
-                    for(int k = 0; k < right.size(); k ++) {
-                        TreeNode *node = new TreeNode(i);
-                        node->left = left[j];
-                        node->right = right[k];
-                        res.push_back(node);
-                    }
-                }
-            }
-        }
-        return res;
+    bool dfs(TreeNode* proot, int sum) {
+
+        int val = proot->val;
+        if(sum == val && !proot->left && !proot->right) return true;
+        return (proot->left && dfs(proot->left, sum - val)) || (proot->right && dfs(proot->right, sum - val));
     }
 };
 
@@ -64,7 +50,7 @@ TreeNode* buildTree(vector<int>& v) {
     }
     return root;
 }
-vector<int> treeToVector(TreeNode *root) {
+vector<int> printTree(TreeNode *root) {
     vector<int> v;
     if(!root) return v;
     queue<TreeNode*> q;
@@ -95,12 +81,16 @@ void printVector(vector<int> v) {
 }
 int main() {
 
+    //int arr1[] = {5, 4, 8, 11, -100, 13, 4, 7, 2, -100, -100, -100, 1};
+    int arr1[] = {1,-2,-3,1,3,-2,-100,-1};
+    vector<int> v(arr1, arr1 + sizeof(arr1)/sizeof(int));
+    TreeNode *root = buildTree(v);
+    vector<int> tree = printTree(root);
+    printVector(tree);
+
     Solution s;
-    vector<TreeNode*> res = s.generateTrees(3);
+    cout << s.hasPathSum(root, -1) << endl;
     
-    for(int i = 0; i < res.size(); i ++) {
-        printVector(treeToVector(res[i]));
-    }
     return 0;
 }
 
